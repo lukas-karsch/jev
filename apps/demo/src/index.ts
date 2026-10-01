@@ -17,6 +17,7 @@ async function main(): Promise<void> {
 			user_complaint: question,
 		},
 	);
+	console.log(response.answers.user_complaint.noul);
 	console.log(response.noulResponse("user_complaint"));
 }
 

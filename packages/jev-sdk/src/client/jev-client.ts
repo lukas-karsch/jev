@@ -1,12 +1,11 @@
-import type { JevApiResponse } from "./responses";
+import type { JevApiResponse, QuestionMap } from "./responses";
 import { JevResponse } from "./responses";
-import type { Question } from "./questions";
 
 export interface JevClient {
-	send(
+	send<Q extends QuestionMap>(
 		state: string,
-		questions: Record<string, Question>,
-	): Promise<JevResponse>;
+		questions: Q,
+	): Promise<JevResponse<Q>>;
 }
 
 class JevClientImpl implements JevClient {
@@ -17,10 +16,10 @@ class JevClientImpl implements JevClient {
 		this.config = config;
 	}
 
-	async send(
+	async send<Q extends QuestionMap>(
 		state: string,
-		questions: Record<string, Question>,
-	): Promise<JevResponse> {
+		questions: Q,
+	): Promise<JevResponse<Q>> {
 		const requestBody = {
 			state,
 			model: this.config.model || "jev-latest",
@@ -41,7 +40,7 @@ class JevClientImpl implements JevClient {
 
 		const body = await response.json();
 
-		return new JevResponse(body as JevApiResponse);
+		return new JevResponse(body as JevApiResponse<Q>);
 	}
 }
 

@@ -1,18 +1,41 @@
-export type JevApiResponse = {
+import type { Question, QuestionType } from "./questions";
+
+export type QuestionMap = Record<string, Question>;
+
+export type ResponseForQuestion<Q extends Question> = Q extends {
+	type: "choice";
+}
+	? Choice
+	: Q extends { type: "score" }
+		? Score
+		: Q extends { type: "noul" }
+			? Noul
+			: never;
+
+export type AnswersForQuestions<Q extends QuestionMap> = {
+	[K in keyof Q]: ResponseForQuestion<Q[K]>;
+};
+
+type QuestionIdsOfType<Q extends QuestionMap, T extends QuestionType> = {
+	[K in keyof Q]: Q[K] extends { type: T } ? K : never;
+}[keyof Q] &
+	string;
+
+export type JevApiResponse<Q extends QuestionMap = QuestionMap> = {
 	model: string;
-	answers: Record<string, QuestionResponse>;
+	answers: AnswersForQuestions<Q>;
 	usage: {
 		input_tokens: number;
 		output_tokens: number;
 	};
 };
 
-export class JevResponse {
-	private readonly answers: Record<string, QuestionResponse>;
-	private readonly usage: { inputTokens: number; outputTokens: number };
-	private readonly model: string;
+export class JevResponse<Q extends QuestionMap = QuestionMap> {
+	readonly answers: AnswersForQuestions<Q>;
+	readonly usage: { inputTokens: number; outputTokens: number };
+	readonly model: string;
 
-	constructor(apiResponse: JevApiResponse) {
+	constructor(apiResponse: JevApiResponse<Q>) {
 		this.answers = apiResponse.answers;
 		this.usage = {
 			inputTokens: apiResponse.usage.input_tokens,
@@ -21,7 +44,9 @@ export class JevResponse {
 		this.model = apiResponse.model;
 	}
 
-	choiceResponse(questionId: string): Choice | undefined {
+	choiceResponse<K extends QuestionIdsOfType<Q, "choice">>(
+		questionId: K,
+	): Choice | undefined {
 		const response = this.answers[questionId];
 		if (response && "choice" in response) {
 			return response;
@@ -29,7 +54,9 @@ export class JevResponse {
 		return undefined;
 	}
 
-	scoreResponse(questionId: string): Score | undefined {
+	scoreResponse<K extends QuestionIdsOfType<Q, "score">>(
+		questionId: K,
+	): Score | undefined {
 		const response = this.answers[questionId];
 		if (response && "score" in response) {
 			return response;
@@ -37,24 +64,14 @@ export class JevResponse {
 		return undefined;
 	}
 
-	noulResponse(questionId: string): Noul | undefined {
+	noulResponse<K extends QuestionIdsOfType<Q, "noul">>(
+		questionId: K,
+	): Noul | undefined {
 		const response = this.answers[questionId];
 		if (response && "noul" in response) {
 			return response;
 		}
 		return undefined;
-	}
-
-	getAnswers(): Record<string, QuestionResponse> {
-		return this.answers;
-	}
-
-	getModel() {
-		return this.model;
-	}
-
-	getUsage() {
-		return this.usage;
 	}
 }
 

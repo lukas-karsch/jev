@@ -13,11 +13,14 @@ type CriteriaMap = {
 
 type Criteria<T extends QuestionType> = CriteriaMap[T];
 
-export type Question<T extends QuestionType = QuestionType> = {
-	type: T;
-	instructions: string;
-	criteria: Criteria<T>;
-};
+export type Question<T extends QuestionType = QuestionType> =
+	T extends QuestionType
+		? {
+				type: T;
+				instructions: string;
+				criteria: Criteria<T>;
+			}
+		: never;
 
 export class QuestionBuilder {
 	static choice = (
