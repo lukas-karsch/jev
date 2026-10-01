@@ -17,7 +17,7 @@ async function main(): Promise<void> {
 			user_complaint: question,
 		},
 	);
-	console.log(response);
+	console.log(response.noulResponse("user_complaint"));
 }
 
 main().catch(console.error);

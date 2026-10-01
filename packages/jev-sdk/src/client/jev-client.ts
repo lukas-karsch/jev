@@ -1,4 +1,5 @@
-import type { JevResponse } from "./responses";
+import type { JevApiResponse } from "./responses";
+import { JevResponse } from "./responses";
 import type { Question } from "./questions";
 
 export interface JevClient {
@@ -40,7 +41,7 @@ class JevClientImpl implements JevClient {
 
 		const body = await response.json();
 
-		return body as JevResponse;
+		return new JevResponse(body as JevApiResponse);
 	}
 }
 
