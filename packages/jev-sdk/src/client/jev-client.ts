@@ -4,7 +4,7 @@ import { JevResponse } from "./responses";
 
 export interface JevClient {
 	send<Q extends QuestionMap>(
-		state: string,
+		state: string | object,
 		questions: Q,
 	): Promise<JevResponse<Q>>;
 }
@@ -18,7 +18,7 @@ class JevClientImpl implements JevClient {
 	}
 
 	async send<Q extends QuestionMap>(
-		state: string,
+		state: string | object,
 		questions: Q,
 	): Promise<JevResponse<Q>> {
 		const requestBody = {

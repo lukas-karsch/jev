@@ -13,6 +13,13 @@ This repository is for experimenting with Typesafe's Jev model. The first goal i
 The SDK supports `choice`, `score`, and `noul` questions. `send()` infers answer types from the questions object, including its question IDs:
 
 ```ts
+const state = {
+	userMessage: "I have never received my product even though I paid!", 
+	systemContext: {
+		stripeLogs: "no payment found for user_123",
+	}
+}
+
 const response = await client.send(state, {
 	user_complaint: QuestionBuilder.noul("Is the user correct?"),
 });

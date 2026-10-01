@@ -9,16 +9,25 @@ if (!apiKey) {
 const client = buildJevClient({ apiKey });
 
 async function main(): Promise<void> {
-	const question = QuestionBuilder.noul("Is the user correct?");
-
-	const response = await client.send(
-		"The user says he paid for the product but he never did, as shown by the Stripe logs",
-		{
-			user_complaint: question,
+	const state = {
+		userMessage: "I have never received my product even though I paid!",
+		systemContext: {
+			stripeLogs: "no payment found for user_123",
 		},
+	};
+	const noulQuestion = QuestionBuilder.noul("Is the user correct?"); // between 0 and 1
+
+	const scoreQuestion = QuestionBuilder.score(
+		"How likely will the user place another order?",
+		["very unlikely", "unlikely", "neutral", "likely", "very likely"],
 	);
-	console.log(response.answers.user_complaint.noul);
-	console.log(response.noulResponse("user_complaint"));
+
+	const response = await client.send(state, {
+		user_complaint: noulQuestion,
+		return_probability: scoreQuestion,
+	});
+
+	console.dir(response.answers, { depth: 3 });
 }
 
 main().catch(console.error);

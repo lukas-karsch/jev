@@ -54,6 +54,7 @@ export class JevResponse<Q extends QuestionMap = QuestionMap> {
 		return undefined;
 	}
 
+	// TODO add methods somewhere like "likeliestChoice" etc
 	scoreResponse<K extends QuestionIdsOfType<Q, "score">>(
 		questionId: K,
 	): Score | undefined {
@@ -87,8 +88,8 @@ export type Choice = {
 
 export type Score = {
 	score: number;
-	legend: string;
-	probabilities: number[];
+	legend: Record<string, string>;
+	probabilities: Record<string, number>;
 	confidence: Confidence;
 };
 
