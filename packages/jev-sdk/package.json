@@ -19,7 +19,8 @@
 	},
 	"scripts": {
 		"build": "tsup src/index.ts --format esm,cjs --dts --clean",
-		"typecheck": "tsc --noEmit"
+		"typecheck": "tsc --noEmit",
+		"dev": "pnpm dlx tsx src/index.ts"
 	},
 	"devDependencies": {
 		"tsup": "^8.5.1",

@@ -6,13 +6,15 @@
 	"private": true,
 	"scripts": {
 		"build": "turbo run build",
-		"typecheck": "turbo run typecheck"
+		"typecheck": "turbo run typecheck",
+		"dev": "turbo run dev --filter=@typesafe/jev-demo"
 	},
 	"keywords": [],
 	"author": "",
 	"license": "ISC",
 	"packageManager": "pnpm@10.8.0",
 	"devDependencies": {
+		"@types/node": "^26.6.3",
 		"turbo": "^2.11.6"
 	}
 }
