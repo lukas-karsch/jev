@@ -14,3 +14,4 @@ export type {
 	ResponseForQuestion,
 	Score,
 } from "./client/responses";
+export { JevError } from "./client/errors";

@@ -1,3 +1,4 @@
+import { JevError } from "./errors";
 import type { JevApiResponse, QuestionMap } from "./responses";
 import { JevResponse } from "./responses";
 
@@ -25,17 +26,24 @@ class JevClientImpl implements JevClient {
 			model: this.config.model || "jev-latest",
 			questions,
 		};
-		const response = await fetch(JevClientImpl.apiEndpoint, {
-			method: "POST",
-			headers: {
-				"Content-Type": "application/json",
-				Authorization: `Bearer ${this.config.apiKey}`,
+		const response = await fetch(
+			this.config.url || JevClientImpl.apiEndpoint,
+			{
+				method: "POST",
+				headers: {
+					"Content-Type": "application/json",
+					Authorization: `Bearer ${this.config.apiKey}`,
+				},
+				body: JSON.stringify(requestBody),
 			},
-			body: JSON.stringify(requestBody),
-		});
+		);
 
 		if (response.status !== 200) {
-			throw new Error(`Failed to send question: ${response.statusText}`);
+			throw new JevError(`Failed to send question.`, {
+				operation: "send",
+				code: `HTTP_${response.status}`,
+				cause: await response.text(),
+			});
 		}
 
 		const body = await response.json();
