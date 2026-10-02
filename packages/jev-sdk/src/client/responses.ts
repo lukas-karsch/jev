@@ -21,6 +21,9 @@ type QuestionIdsOfType<Q extends QuestionMap, T extends QuestionType> = {
 }[keyof Q] &
 	string;
 
+/**
+ * The type returned by Jev's API.
+ */
 export type JevApiResponse<Q extends QuestionMap = QuestionMap> = {
 	model: string;
 	answers: AnswersForQuestions<Q>;
@@ -46,33 +49,31 @@ export class JevResponse<Q extends QuestionMap = QuestionMap> {
 
 	choiceResponse<K extends QuestionIdsOfType<Q, "choice">>(
 		questionId: K,
-	): Choice | undefined {
+	): Choice {
 		const response = this.answers[questionId];
 		if (response && "choice" in response) {
 			return response;
 		}
-		return undefined;
+		throw new Error(`Question ${questionId} is not of type "choice"`);
 	}
 
 	// TODO add methods somewhere like "likeliestChoice" etc
 	scoreResponse<K extends QuestionIdsOfType<Q, "score">>(
 		questionId: K,
-	): Score | undefined {
+	): Score {
 		const response = this.answers[questionId];
 		if (response && "score" in response) {
 			return response;
 		}
-		return undefined;
+		throw new Error(`Question ${questionId} is not of type "score"`);
 	}
 
-	noulResponse<K extends QuestionIdsOfType<Q, "noul">>(
-		questionId: K,
-	): Noul | undefined {
+	noulResponse<K extends QuestionIdsOfType<Q, "noul">>(questionId: K): Noul {
 		const response = this.answers[questionId];
 		if (response && "noul" in response) {
 			return response;
 		}
-		return undefined;
+		throw new Error(`Question ${questionId} is not of type "noul"`);
 	}
 }
 
@@ -81,12 +82,14 @@ export type Confidence = number;
 export type QuestionResponse = Choice | Score | Noul;
 
 export type Choice = {
+	type: "choice";
 	confidence: Confidence;
 	probabilities: number[];
 	choice: string;
 };
 
 export type Score = {
+	type: "score";
 	score: number;
 	legend: Record<string, string>;
 	probabilities: Record<string, number>;
@@ -94,5 +97,6 @@ export type Score = {
 };
 
 export type Noul = {
+	type: "noul";
 	noul: number;
 };

@@ -25,7 +25,7 @@ const response = await client.send(state, {
 });
 
 response.answers.user_complaint.noul; // number
-response.noulResponse("user_complaint"); // Noul | undefined
+response.noulResponse("user_complaint"); // Noul
 response.choiceResponse("user_complaint"); // TS Error! 
 ```
 
