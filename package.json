@@ -10,7 +10,7 @@
 		"dev": "turbo run dev --filter=@typesafe/jev-demo"
 	},
 	"keywords": [],
-	"author": "",
+	"author": "Lukas Karsch",
 	"license": "ISC",
 	"packageManager": "pnpm@10.8.0",
 	"devDependencies": {

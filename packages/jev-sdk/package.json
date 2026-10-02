@@ -2,7 +2,8 @@
 	"name": "@typesafe/jev-sdk",
 	"version": "0.1.0",
 	"description": "TypeScript SDK for the Jev model",
-	"license": "ISC",
+	"license": "Apache-2.0",
+	"author": "Lukas Karsch",
 	"sideEffects": false,
 	"files": [
 		"dist"

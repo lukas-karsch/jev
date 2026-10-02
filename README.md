@@ -1,8 +1,12 @@
 # Jev
 
+> Jev is TypeSafe’s flagship model and the first System One model. Send state and typed questions; get structured answers your code can use directly.
+
 This repository is for experimenting with Typesafe's Jev model. The first goal is to build a clear, type-safe TypeScript SDK. The apps in `/apps` then use that SDK to explore different Jev use cases.
 
 ## Repository Structure
+
+This is a monorepo scaffolded with pnpm and turborepo. 
 
 - `packages/jev-sdk/` contains the reusable Jev client, question builders, and typed responses.
 - `apps/demo/` is the first example app. Future experiments are added as separate apps here; all of them will depend on the SDK.
@@ -37,3 +41,7 @@ Answer properties are typed for the question submitted under each key. The respo
 - `pnpm build` builds the workspace packages.
 - `pnpm typecheck` checks the packages and apps.
 - `pnpm dev` runs the demo app and automatically builds all packages in `watch` mode. Set `TYPESAFE_API_KEY` in the environment first.
+
+## Further Links 
+
+- [TypeSafe Docs](https://docs.typesafe.ai/introduction)
