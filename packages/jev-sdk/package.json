@@ -20,7 +20,7 @@
 	"scripts": {
 		"build": "tsup src/index.ts --format esm,cjs --dts --clean",
 		"typecheck": "tsc --noEmit",
-		"dev": "pnpm dlx tsx src/index.ts"
+		"dev": "tsup src/index.ts --format esm,cjs --dts --watch"
 	},
 	"devDependencies": {
 		"tsup": "^8.5.1",

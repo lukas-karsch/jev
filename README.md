@@ -36,4 +36,4 @@ Answer properties are typed for the question submitted under each key. The respo
 - `pnpm install` installs dependencies.
 - `pnpm build` builds the workspace packages.
 - `pnpm typecheck` checks the packages and apps.
-- `pnpm dev` runs the demo app; set `TYPESAFE_API_KEY` in the environment first.
+- `pnpm dev` runs the demo app and automatically builds all packages in `watch` mode. Set `TYPESAFE_API_KEY` in the environment first.
