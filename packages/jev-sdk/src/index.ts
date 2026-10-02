@@ -7,7 +7,6 @@ export type {
 	AnswersForQuestions,
 	Choice,
 	Confidence,
-	JevApiResponse,
 	Noul,
 	QuestionResponse,
 	QuestionMap,
