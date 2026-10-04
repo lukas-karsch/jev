@@ -1,5 +1,5 @@
 {
-	"name": "@typesafe/jev-demo",
+	"name": "@jev/demo",
 	"version": "0.0.0",
 	"private": true,
 	"author": "Lukas Karsch",
@@ -9,7 +9,7 @@
 		"typecheck": "tsc --noEmit"
 	},
 	"dependencies": {
-		"@typesafe/jev-sdk": "workspace:*"
+		"@jev/sdk": "workspace:*"
 	},
 	"devDependencies": {
 		"tsx": "^4.20.6",

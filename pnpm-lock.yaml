@@ -17,7 +17,7 @@ importers:
 
   apps/demo:
     dependencies:
-      '@typesafe/jev-sdk':
+      '@jev/sdk':
         specifier: workspace:*
         version: link:../../packages/jev-sdk
     devDependencies:

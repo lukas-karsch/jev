@@ -1,5 +1,5 @@
 {
-	"name": "@typesafe/jev-sdk",
+	"name": "@jev/sdk",
 	"version": "0.1.0",
 	"description": "TypeScript SDK for the Jev model",
 	"license": "Apache-2.0",
