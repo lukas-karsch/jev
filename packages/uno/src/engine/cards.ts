@@ -1,3 +1,5 @@
+import { shuffle } from "./random";
+
 export type Card =
 	| {
 			type: "regular";
@@ -60,3 +62,11 @@ export function generateDeck(): Card[] {
 
 	return deck;
 }
+
+export interface CardsSupplier {
+	getDeck(): Card[];
+}
+
+export const cardsSupplier: CardsSupplier = {
+	getDeck: () => shuffle(generateDeck()),
+};
