@@ -6,8 +6,13 @@ export interface Player {
 	 *
 	 * @param ownCards cards the player has in his hand
 	 * @param currentCard the card that is currently on top of the discard pile
+	 * @param onTurnCompleted callback to be called with the chosen action
 	 */
-	onTurn(ownCards: Card[], currentCard: Card): void;
+	onTurn(
+		ownCards: Card[],
+		currentCard: Card,
+		onTurnCompleted: (playerAction: PlayerAction[]) => void,
+	): void;
 }
 
 export type PlayerAction =

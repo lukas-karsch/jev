@@ -1,6 +1,5 @@
-import { Card, cardsSupplier, CardsSupplier, generateDeck } from "./cards";
+import { Card, cardsSupplier, CardsSupplier } from "./cards";
 import { Player, PlayerAction } from "./player";
-import { shuffle } from "./random";
 
 export interface UnoGame {
 	startGame(players: Player[]): void;
@@ -48,7 +47,13 @@ class UnoGameImpl implements UnoGame {
 		const ctx = this.gameContext;
 		const currentTurn = ctx.players[ctx.currentPlayerIndex]!;
 
-		currentTurn.player.onTurn(currentTurn.cards, ctx.currentCard);
+		currentTurn.player.onTurn(
+			currentTurn.cards,
+			ctx.currentCard,
+			(actions) => {
+				this.turnMade(currentTurn.player, actions);
+			},
+		);
 	}
 
 	turnMade(player: Player, action: PlayerAction[]): void {
