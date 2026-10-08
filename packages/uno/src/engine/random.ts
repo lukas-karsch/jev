@@ -1,3 +1,6 @@
+/**
+ * @returns a shuffled version of the original deck. The original deck is not modified.
+ */
 export function shuffle<T>(deck: readonly T[]): T[] {
 	const result = [...deck]; // Clone to avoid mutating the original deck
 

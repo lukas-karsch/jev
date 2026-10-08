@@ -1,4 +1,4 @@
-import { Card } from "./cards";
+import { Card, Color, RegularCard, WildCard } from "./cards";
 
 export interface Player {
 	/**
@@ -15,12 +15,23 @@ export interface Player {
 	): void;
 }
 
+export type PlayCardAction =
+	| {
+			name: "play_card";
+			card: RegularCard;
+			chosenColor?: never;
+	  }
+	| {
+			name: "play_card";
+			card: WildCard;
+			chosenColor: Color;
+	  };
+
 export type PlayerAction =
 	| {
 			name: "draw_card";
 	  }
+	| PlayCardAction
 	| {
-			name: "play_card";
-			card: Card;
-	  }
-	| { name: "call_uno" };
+			name: "call_uno";
+	  };
