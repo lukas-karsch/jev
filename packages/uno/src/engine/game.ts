@@ -56,9 +56,14 @@ class UnoGameImpl implements UnoGame {
 			},
 			deck,
 			currentPlayerIndex: 0,
-			advancePlayer: () =>
-				(this.gameContext!.currentPlayerIndex +=
-					this.gameContext!.direction),
+			advancePlayer: () => {
+				const ctx = this.gameContext!;
+				ctx.currentPlayerIndex =
+					(ctx.currentPlayerIndex +
+						ctx.direction +
+						ctx.players.length) %
+					ctx.players.length;
+			},
 			direction: 1,
 		};
 
@@ -140,14 +145,19 @@ class UnoGameImpl implements UnoGame {
 					sideEffect.apply(ctx);
 				}
 
-				ctx.advancePlayer();
-
 				break;
 			}
 			case "call_uno": {
 				break;
 			}
 		}
+
+		ctx.advancePlayer();
+
+		const nextTurn = ctx.players[ctx.currentPlayerIndex]!;
+		nextTurn.player.onTurn(nextTurn.cards, ctx.currentCard(), (action) =>
+			this.turnMade(nextTurn.player, action),
+		);
 	}
 }
 

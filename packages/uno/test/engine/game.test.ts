@@ -12,6 +12,37 @@ describe("startGame", () => {
 		vi.restoreAllMocks();
 	});
 
+	it("wraps to the first player when advancing past the last player", () => {
+		const players: Player[] = [
+			{ onTurn: vi.fn() },
+			{ onTurn: vi.fn() },
+			{ onTurn: vi.fn() },
+		];
+		const game = createGame() as any;
+
+		game.startGame(players);
+		game.gameContext.advancePlayer();
+		game.gameContext.advancePlayer();
+		game.gameContext.advancePlayer();
+
+		expect(game.gameContext.currentPlayerIndex).toBe(0);
+	});
+
+	it("wraps to the last player when advancing before the first player", () => {
+		const players: Player[] = [
+			{ onTurn: vi.fn() },
+			{ onTurn: vi.fn() },
+			{ onTurn: vi.fn() },
+		];
+		const game = createGame() as any;
+
+		game.startGame(players);
+		game.gameContext.direction = -1;
+		game.gameContext.advancePlayer();
+
+		expect(game.gameContext.currentPlayerIndex).toBe(2);
+	});
+
 	it("rejects fewer than two players", () => {
 		const getDeck = vi.spyOn(cardsSupplier, "getDeck");
 		const error = vi.spyOn(console, "error").mockImplementation(() => {});
@@ -123,6 +154,7 @@ describe("turnMade", () => {
 					],
 				deck: [],
 				currentPlayerIndex: 0,
+				advancePlayer: vi.fn(),
 				direction: 1,
 			};
 
@@ -165,6 +197,7 @@ describe("turnMade", () => {
 					],
 				deck: [cardInDeck, otherDeckCard],
 				currentPlayerIndex: 0,
+				advancePlayer: vi.fn(),
 				direction: 1,
 			};
 
@@ -197,6 +230,7 @@ describe("turnMade", () => {
 					],
 				deck: [],
 				currentPlayerIndex: 0,
+				advancePlayer: vi.fn(),
 				direction: 1,
 			};
 
