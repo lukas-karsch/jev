@@ -1,6 +1,13 @@
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 import { Card } from "../../src";
-import { StandardUnoRuleEngine } from "../../src/engine/rules";
+import {
+	DrawCardsSideEffect,
+	ReverseSideEffect,
+	SkipPlayerSideEffect,
+	StandardUnoRuleEngine,
+	WishColorSideEffect,
+} from "../../src/engine/rules";
+import type { GameContext } from "../../src/engine/game";
 
 describe("StandardUnoRuleEngine", () => {
 	describe("Standard Moves", () => {
@@ -48,6 +55,43 @@ describe("StandardUnoRuleEngine", () => {
 			});
 		});
 
+		it("should return the matching side effect for reverse and draw two cards", () => {
+			const underTest = new StandardUnoRuleEngine();
+			const currentCard: Card = {
+				type: "regular",
+				color: "blue",
+				value: 1,
+			};
+			const reverseResult = underTest.decide(
+				{ currentCard },
+				{
+					name: "play_card",
+					card: { type: "regular", color: "blue", value: "reverse" },
+				},
+			);
+			const drawTwoResult = underTest.decide(
+				{ currentCard },
+				{
+					name: "play_card",
+					card: { type: "regular", color: "blue", value: "draw_two" },
+				},
+			);
+
+			expect(reverseResult.decision).toBe("accepted");
+			expect(drawTwoResult.decision).toBe("accepted");
+			if (
+				reverseResult.decision === "accepted" &&
+				drawTwoResult.decision === "accepted"
+			) {
+				expect(reverseResult.sideEffects[0]).toBeInstanceOf(
+					ReverseSideEffect,
+				);
+				expect(drawTwoResult.sideEffects[0]).toBeInstanceOf(
+					DrawCardsSideEffect,
+				);
+			}
+		});
+
 		it("should allow a a different color with matching symbol to be played; with side effects", () => {
 			const currentCard: Card = {
 				type: "regular",
@@ -68,7 +112,9 @@ describe("StandardUnoRuleEngine", () => {
 			);
 			expect(result.decision).toBe("accepted");
 			if ("sideEffects" in result) {
-				expect(result.sideEffects).toHaveLength(1);
+				expect(result.sideEffects).toEqual([
+					expect.any(SkipPlayerSideEffect),
+				]);
 			} else {
 				throw new Error("Expected sideEffects to exist on result");
 			}
@@ -117,7 +163,9 @@ describe("StandardUnoRuleEngine", () => {
 			);
 			expect(result.decision).toBe("accepted");
 			if ("sideEffects" in result) {
-				expect(result.sideEffects).toHaveLength(1);
+				expect(result.sideEffects).toEqual([
+					expect.any(WishColorSideEffect),
+				]);
 			} else {
 				throw new Error(
 					"Expected sideEffects to exist when a wild card is played",
@@ -145,7 +193,10 @@ describe("StandardUnoRuleEngine", () => {
 			);
 			expect(result.decision).toBe("accepted");
 			if ("sideEffects" in result) {
-				expect(result.sideEffects).toHaveLength(2);
+				expect(result.sideEffects).toEqual([
+					expect.any(WishColorSideEffect),
+					expect.any(DrawCardsSideEffect),
+				]);
 			} else {
 				throw new Error(
 					"Expected 2 sideEffects to exist when a draw_four wild card is played",
@@ -176,7 +227,7 @@ describe("StandardUnoRuleEngine", () => {
 				expect(result.sideEffects).toHaveLength(0);
 			} else {
 				throw new Error(
-					"Expected 2 sideEffects to exist when a draw_four wild card is played",
+					"Expected 0 sideEffects to exist when a draw_four wild card is played",
 				);
 			}
 		});
@@ -201,5 +252,82 @@ describe("StandardUnoRuleEngine", () => {
 			);
 			expect(result.decision).toBe("rejected");
 		});
+	});
+});
+
+describe("SideEffect", () => {
+	const createGameContext = (deck: Card[] = []): GameContext => ({
+		players: Array.from({ length: 4 }, () => ({
+			player: { onTurn: () => {} },
+			cards: [],
+		})),
+		currentCard: () => ({ type: "regular", color: "blue", value: 1 }),
+		playedCards: [],
+		deck,
+		currentPlayerIndex: 0,
+		advancePlayer: vi.fn(),
+		direction: 1,
+	});
+
+	it("reverses the play direction", () => {
+		const context = createGameContext();
+		const effect = new ReverseSideEffect();
+
+		effect.apply(context);
+
+		expect(context.direction).toBe(-1);
+	});
+
+	it("sets the chosen color for a wild card", () => {
+		const context = createGameContext();
+		const effect = new WishColorSideEffect("red");
+
+		effect.apply(context);
+
+		expect(context.currentActiveColor).toBe("red");
+	});
+
+	it("advances the player for a skip card", () => {
+		const context = createGameContext();
+		const effect = new SkipPlayerSideEffect();
+
+		effect.apply(context);
+
+		expect(context.advancePlayer).toHaveBeenCalledOnce();
+	});
+
+	it("draws two cards for the next player", () => {
+		const cards = [
+			{ type: "regular", color: "red", value: 2 },
+			{ type: "regular", color: "green", value: 3 },
+		] satisfies Card[];
+		const drawnCards = [...cards].reverse();
+		const context = createGameContext(cards);
+		const effect = new DrawCardsSideEffect(2);
+
+		effect.apply(context);
+		expect(context.currentPlayerIndex).toBe(0);
+		expect(context.players[1]!.cards).toEqual(drawnCards);
+		expect(context.deck).toEqual([]);
+	});
+
+	it("sets the chosen color and draws four cards for a wild draw four", () => {
+		const cards = [
+			{ type: "regular", color: "red", value: 2 },
+			{ type: "regular", color: "green", value: 3 },
+			{ type: "regular", color: "yellow", value: 4 },
+			{ type: "regular", color: "blue", value: 5 },
+		] satisfies Card[];
+		const drawnCards = [...cards].reverse();
+		const context = createGameContext(cards);
+		const colorEffect = new WishColorSideEffect("green");
+		const drawEffect = new DrawCardsSideEffect(4);
+
+		colorEffect.apply(context);
+		drawEffect.apply(context);
+		expect(context.currentActiveColor).toBe("green");
+		expect(context.currentPlayerIndex).toBe(0);
+		expect(context.players[1]!.cards).toEqual(drawnCards);
+		expect(context.deck).toEqual([]);
 	});
 });

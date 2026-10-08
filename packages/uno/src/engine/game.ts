@@ -51,8 +51,8 @@ class UnoGameImpl implements UnoGame {
 			})),
 			playedCards: [firstCard],
 			currentCard: () => {
-				const ctx = this.gameContext;
-				return ctx!.playedCards[ctx!.playedCards.length - 1]!;
+				const ctx = this.gameContext!;
+				return ctx.playedCards[ctx.playedCards.length - 1]!;
 			},
 			deck,
 			currentPlayerIndex: 0,

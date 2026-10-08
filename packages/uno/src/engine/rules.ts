@@ -82,11 +82,18 @@ type Decision =
 			decision: "rejected";
 	  };
 
-interface SideEffect {
+/**
+ * Side effects describe actions taken on the gameContext through a simple `apply` function.
+ * @see GameContext
+ */
+export interface SideEffect {
 	apply(gameContext: GameContext): void;
 }
 
-class ReverseSideEffect implements SideEffect {
+/**
+ * Reverses the playing direction
+ */
+export class ReverseSideEffect implements SideEffect {
 	apply(gameContext: GameContext): void {
 		gameContext.direction *= -1;
 	}
@@ -95,7 +102,7 @@ class ReverseSideEffect implements SideEffect {
 /**
  * Modifies gameContext to override the currentActiveColor
  */
-class WishColorSideEffect implements SideEffect {
+export class WishColorSideEffect implements SideEffect {
 	constructor(private readonly color: Color) {}
 
 	apply(gameContext: GameContext): void {
@@ -106,7 +113,7 @@ class WishColorSideEffect implements SideEffect {
 /**
  * Skip the next player
  */
-class SkipPlayerSideEffect implements SideEffect {
+export class SkipPlayerSideEffect implements SideEffect {
 	apply(gameContext: GameContext): void {
 		gameContext.advancePlayer();
 	}
@@ -115,12 +122,12 @@ class SkipPlayerSideEffect implements SideEffect {
 /**
  * Draws the specified amount of cards to the next player's hand
  */
-class DrawCardsSideEffect implements SideEffect {
+export class DrawCardsSideEffect implements SideEffect {
 	constructor(private readonly cardsToDraw: number) {}
 
 	apply(gameContext: GameContext): void {
-		const affectedPlayer = (gameContext.currentPlayerIndex +=
-			gameContext.direction);
+		const affectedPlayer =
+			gameContext.currentPlayerIndex + gameContext.direction;
 
 		for (let i = 0; i < this.cardsToDraw; i++) {
 			gameContext.players[affectedPlayer]?.cards.push(
