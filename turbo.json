@@ -14,5 +14,6 @@
 			"cache": false,
 			"persistent": true
 		}
-	}
+	},
+	"agentGuidance": false
 }
