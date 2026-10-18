@@ -12,7 +12,7 @@ export interface Player {
 		ownCards: Card[],
 		currentCard: Card,
 		onTurnCompleted: (playerAction: PlayerAction[]) => void,
-	): void;
+	): void; // TODO let the player know how many cards are pending to be drawn
 }
 
 export type PlayCardAction =
@@ -35,3 +35,11 @@ export type PlayerAction =
 	| {
 			name: "call_uno";
 	  };
+
+export function drawCardAction(): PlayerAction {
+	return { name: "draw_card" };
+}
+
+export function callUnoAction(): PlayerAction {
+	return { name: "call_uno" };
+}

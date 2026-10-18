@@ -73,3 +73,11 @@ export const cardsSupplier: CardsSupplier = {
 	getDeck: () => shuffle(generateDeck()),
 	shuffleDeck: (deck) => shuffle(deck),
 };
+
+export function isRegularCard(card: Card): card is RegularCard {
+	return card.type === "regular";
+}
+
+export function isWildCard(card: Card): card is WildCard {
+	return card.type === "wild";
+}
