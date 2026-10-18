@@ -1,4 +1,5 @@
-import { Card, cardsSupplier, CardsSupplier, Color } from "./cards";
+import { cardsSupplier, CardsSupplier } from "./cards";
+import { GameContext } from "./game-context";
 import { Player, PlayerAction } from "./player";
 import { RuleEngine, StandardUnoRuleEngine } from "./rules";
 
@@ -11,20 +12,6 @@ export interface UnoGame {
 	 * @param actions an array with one action, unless the player calls UNO, in which case the array should contain two actions: the action to play a card and the action to call UNO.
 	 */
 	turnMade(player: Player, actions: PlayerAction[]): void;
-}
-
-export interface GameContext {
-	players: { player: Player; cards: Card[] }[];
-	currentCard: () => Card;
-	/**
-	 * The playedCards can be seen as a stack - like in real life. The first element of the array is the card that was played first - it is at the bottom of the stack. The last element of the array is the topmost card.
-	 */
-	playedCards: Card[];
-	deck: Card[];
-	currentPlayerIndex: number;
-	advancePlayer: () => void;
-	direction: 1 | -1;
-	currentActiveColor?: Color | undefined;
 }
 
 class UnoGameImpl implements UnoGame {
