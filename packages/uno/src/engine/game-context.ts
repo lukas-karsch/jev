@@ -13,18 +13,18 @@ export interface GameContext {
 	advancePlayer: () => void;
 	direction: 1 | -1;
 	currentActiveColor?: Color | undefined;
+	pendingDrawCount: number;
+	dealCardsToPlayer: (playerIndex: number, cardsToDeal: number) => void;
 }
 
-/**
- * currently unused, TODO
- */
-class GameContextImpl implements GameContext {
+export class GameContextImpl implements GameContext {
 	players: { player: Player; cards: any[] }[];
 	playedCards: Card[];
 	deck: Card[];
 	currentPlayerIndex = 0;
 	direction: 1 | -1 = 1;
 	currentActiveColor?: Color | undefined = undefined;
+	pendingDrawCount = 0;
 
 	constructor(
 		players: Player[],
@@ -51,14 +51,24 @@ class GameContextImpl implements GameContext {
 			this.players.length;
 	}
 
-	drawCard(): Card {
+	dealCardsToPlayer(playerIndex: number, cardsToDeal: number = 1): void {
 		// TODO add to interface
+
+		if (!this.players[playerIndex]) {
+			throw new Error(
+				`No player with index ${playerIndex} exists in this context.`,
+			);
+		}
+
 		if (this.deck.length === 0) {
 			const topmostCard = this.playedCards.pop()!;
 			this.deck = this.cardsSupplier.shuffleDeck(this.playedCards);
 			this.playedCards = [topmostCard];
 		}
 
-		return this.deck.pop()!;
+		for (let i = 0; i < cardsToDeal; i++) {
+			const drawnCard = this.deck.pop()!;
+			this.players[playerIndex]?.cards.push(drawnCard);
+		}
 	}
 }

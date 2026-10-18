@@ -1,5 +1,5 @@
 import { cardsSupplier, CardsSupplier } from "./cards";
-import { GameContext } from "./game-context";
+import { GameContext, GameContextImpl } from "./game-context";
 import { Player, PlayerAction } from "./player";
 import { RuleEngine, StandardUnoRuleEngine } from "./rules";
 
@@ -28,31 +28,7 @@ class UnoGameImpl implements UnoGame {
 			return;
 		}
 
-		const deck = this.cardsSupplier.getDeck();
-		const firstCard = deck.shift()!;
-
-		this.gameContext = {
-			players: players.map((player) => ({
-				player,
-				cards: Array.from({ length: 7 }, () => deck.pop()!),
-			})),
-			playedCards: [firstCard],
-			currentCard: () => {
-				const ctx = this.gameContext!;
-				return ctx.playedCards[ctx.playedCards.length - 1]!;
-			},
-			deck,
-			currentPlayerIndex: 0,
-			advancePlayer: () => {
-				const ctx = this.gameContext!;
-				ctx.currentPlayerIndex =
-					(ctx.currentPlayerIndex +
-						ctx.direction +
-						ctx.players.length) %
-					ctx.players.length;
-			},
-			direction: 1,
-		};
+		this.gameContext = new GameContextImpl(players, this.cardsSupplier);
 
 		const ctx = this.gameContext;
 		const currentTurn = ctx.players[ctx.currentPlayerIndex]!;
@@ -86,16 +62,27 @@ class UnoGameImpl implements UnoGame {
 		}
 
 		const action = actions[0]!;
+		if (ctx.pendingDrawCount > 0 && action.name === "call_uno") {
+			console.error("Move rejected");
+			return;
+		}
+
+		let moveSuccessful = true;
 		switch (action.name) {
 			case "draw_card": {
-				if (ctx.deck.length === 0) {
-					const topmostCard = ctx.playedCards.pop()!;
-					ctx.deck = this.cardsSupplier.shuffleDeck(ctx.playedCards);
-					ctx.playedCards = [topmostCard];
-				}
+				const cardsToDraw = ctx.pendingDrawCount || 1;
+				ctx.pendingDrawCount = 0;
+				for (let i = 0; i < cardsToDraw; i++) {
+					if (ctx.deck.length === 0) {
+						const topmostCard = ctx.playedCards.pop()!;
+						ctx.deck = this.cardsSupplier.shuffleDeck(
+							ctx.playedCards,
+						);
+						ctx.playedCards = [topmostCard];
+					}
 
-				const drawnCard = ctx.deck.pop()!;
-				currentTurn.cards.push(drawnCard);
+					currentTurn.cards.push(ctx.deck.pop()!);
+				}
 				break;
 			}
 			case "play_card": {
@@ -105,7 +92,8 @@ class UnoGameImpl implements UnoGame {
 				);
 				if (index === -1) {
 					console.error("You don't have that card.");
-					return;
+					moveSuccessful = false;
+					break;
 				}
 
 				const decision = this.ruleEngine.decide(
@@ -114,13 +102,15 @@ class UnoGameImpl implements UnoGame {
 						modifiers: {
 							currentActiveColor: ctx.currentActiveColor,
 						}, // TODO turn modifiers into a field on ctx
+						pendingDrawCount: ctx.pendingDrawCount,
 					},
 					action,
 				);
 
 				if (decision.decision === "rejected") {
 					console.error("Move rejected"); // TODO add explanation to the log
-					return;
+					moveSuccessful = false;
+					break;
 				}
 
 				currentTurn.cards.splice(index, 1);
@@ -139,7 +129,7 @@ class UnoGameImpl implements UnoGame {
 			}
 		}
 
-		if (currentTurn.cards.length === 1) {
+		if (currentTurn.cards.length === 1 && action.name !== "call_uno") {
 			const secondAction = actions[1];
 			if (!secondAction || secondAction.name !== "call_uno") {
 				console.error(
@@ -151,7 +141,9 @@ class UnoGameImpl implements UnoGame {
 			}
 		}
 
-		ctx.advancePlayer();
+		if (moveSuccessful) {
+			ctx.advancePlayer();
+		}
 
 		const nextTurn = ctx.players[ctx.currentPlayerIndex]!;
 		nextTurn.player.onTurn(nextTurn.cards, ctx.currentCard(), (action) =>

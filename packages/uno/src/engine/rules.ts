@@ -1,10 +1,11 @@
 import { Card, Color } from "./cards";
-import { GameContext } from "./game";
+import { GameContext } from "./game-context";
 import { PlayCardAction } from "./player";
 
 type CurrentState = {
 	currentCard: Card;
 	modifiers?: { currentActiveColor?: Color | undefined };
+	pendingDrawCount?: number;
 };
 
 export interface RuleEngine {
@@ -22,6 +23,14 @@ export interface RuleEngine {
  */
 export class StandardUnoRuleEngine implements RuleEngine {
 	decide(state: CurrentState, playerAction: PlayCardAction): Decision {
+		if (
+			state.pendingDrawCount &&
+			(playerAction.card.type !== "regular" ||
+				playerAction.card.value !== "draw_two")
+		) {
+			return { decision: "rejected" };
+		}
+
 		let decision: Decision["decision"] = "rejected";
 
 		const colorToMatch =
@@ -50,7 +59,7 @@ function getSideEffects(playerAction: PlayCardAction): SideEffect[] {
 	if (playerAction.card.type === "regular") {
 		switch (playerAction.card.value) {
 			case "draw_two":
-				return [new DrawCardsSideEffect(2)];
+				return [new StackDrawCardsSideEffect(2)];
 			case "reverse":
 				return [new ReverseSideEffect()];
 			case "skip":
@@ -134,5 +143,16 @@ export class DrawCardsSideEffect implements SideEffect {
 				gameContext.deck.pop()!,
 			); // TODO handle shuffling! probably need to add an abstraction for the Deck and playedCards to automatically shuffle when the deck is empty
 		}
+	}
+}
+
+/**
+ * Adds to the pending draw penalty so a later player can stack another draw-two.
+ */
+export class StackDrawCardsSideEffect implements SideEffect {
+	constructor(private readonly cardsToDraw: number) {}
+
+	apply(gameContext: GameContext): void {
+		gameContext.pendingDrawCount += this.cardsToDraw;
 	}
 }

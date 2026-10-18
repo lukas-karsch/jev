@@ -4,10 +4,11 @@ import {
 	DrawCardsSideEffect,
 	ReverseSideEffect,
 	SkipPlayerSideEffect,
+	StackDrawCardsSideEffect,
 	StandardUnoRuleEngine,
 	WishColorSideEffect,
 } from "../../src/engine/rules";
-import type { GameContext } from "../../src/engine/game";
+import type { GameContext } from "../../src/engine/game-context";
 
 describe("StandardUnoRuleEngine", () => {
 	describe("Standard Moves", () => {
@@ -87,7 +88,7 @@ describe("StandardUnoRuleEngine", () => {
 					ReverseSideEffect,
 				);
 				expect(drawTwoResult.sideEffects[0]).toBeInstanceOf(
-					DrawCardsSideEffect,
+					StackDrawCardsSideEffect,
 				);
 			}
 		});
@@ -267,6 +268,8 @@ describe("SideEffect", () => {
 		currentPlayerIndex: 0,
 		advancePlayer: vi.fn(),
 		direction: 1,
+		pendingDrawCount: 0,
+		dealCardsToPlayer: vi.fn(),
 	});
 
 	it("reverses the play direction", () => {
@@ -309,6 +312,16 @@ describe("SideEffect", () => {
 		expect(context.currentPlayerIndex).toBe(0);
 		expect(context.players[1]!.cards).toEqual(drawnCards);
 		expect(context.deck).toEqual([]);
+	});
+
+	it("stacks a draw-two penalty without drawing immediately", () => {
+		const context = createGameContext();
+		const effect = new StackDrawCardsSideEffect(2);
+
+		effect.apply(context);
+
+		expect(context.pendingDrawCount).toBe(2);
+		expect(context.players[1]!.cards).toEqual([]);
 	});
 
 	it("sets the chosen color and draws four cards for a wild draw four", () => {
