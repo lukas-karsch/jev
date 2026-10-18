@@ -138,11 +138,7 @@ export class DrawCardsSideEffect implements SideEffect {
 		const affectedPlayer =
 			gameContext.currentPlayerIndex + gameContext.direction;
 
-		for (let i = 0; i < this.cardsToDraw; i++) {
-			gameContext.players[affectedPlayer]?.cards.push(
-				gameContext.deck.pop()!,
-			); // TODO handle shuffling! probably need to add an abstraction for the Deck and playedCards to automatically shuffle when the deck is empty
-		}
+		gameContext.dealCardsToPlayer(affectedPlayer, this.cardsToDraw);
 	}
 }
 

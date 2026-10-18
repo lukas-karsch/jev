@@ -135,9 +135,7 @@ class UnoGameImpl implements UnoGame {
 				console.error(
 					"Player did not call UNO, even though he only has one card left in his hand. Dealing two punishment cards",
 				);
-				for (let i = 0; i < 2; i++) {
-					currentTurn.cards.push(ctx.deck.pop()!); // TODO fix - re-shuffling may be necessary
-				}
+				ctx.dealCardsToPlayer(ctx.currentPlayerIndex, 2);
 			}
 		}
 

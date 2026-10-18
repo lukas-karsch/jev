@@ -304,14 +304,12 @@ describe("SideEffect", () => {
 			{ type: "regular", color: "red", value: 2 },
 			{ type: "regular", color: "green", value: 3 },
 		] satisfies Card[];
-		const drawnCards = [...cards].reverse();
 		const context = createGameContext(cards);
 		const effect = new DrawCardsSideEffect(2);
 
 		effect.apply(context);
 		expect(context.currentPlayerIndex).toBe(0);
-		expect(context.players[1]!.cards).toEqual(drawnCards);
-		expect(context.deck).toEqual([]);
+		expect(vi.mocked(context.dealCardsToPlayer)).toHaveBeenCalledWith(1, 2);
 	});
 
 	it("stacks a draw-two penalty without drawing immediately", () => {
@@ -331,7 +329,6 @@ describe("SideEffect", () => {
 			{ type: "regular", color: "yellow", value: 4 },
 			{ type: "regular", color: "blue", value: 5 },
 		] satisfies Card[];
-		const drawnCards = [...cards].reverse();
 		const context = createGameContext(cards);
 		const colorEffect = new WishColorSideEffect("green");
 		const drawEffect = new DrawCardsSideEffect(4);
@@ -340,7 +337,6 @@ describe("SideEffect", () => {
 		drawEffect.apply(context);
 		expect(context.currentActiveColor).toBe("green");
 		expect(context.currentPlayerIndex).toBe(0);
-		expect(context.players[1]!.cards).toEqual(drawnCards);
-		expect(context.deck).toEqual([]);
+		expect(vi.mocked(context.dealCardsToPlayer)).toHaveBeenCalledWith(1, 4);
 	});
 });

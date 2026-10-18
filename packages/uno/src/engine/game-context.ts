@@ -52,8 +52,6 @@ export class GameContextImpl implements GameContext {
 	}
 
 	dealCardsToPlayer(playerIndex: number, cardsToDeal: number = 1): void {
-		// TODO add to interface
-
 		if (!this.players[playerIndex]) {
 			throw new Error(
 				`No player with index ${playerIndex} exists in this context.`,

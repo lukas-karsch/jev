@@ -4,8 +4,9 @@ import {
 	NumericCardValue,
 	type Card,
 } from "../../src/engine/cards";
-import createGame from "../../src/engine/game";
+import createGame, { UnoGame } from "../../src/engine/game";
 import type { Player } from "../../src/engine/player";
+import { GameContext } from "../../src/engine/game-context";
 
 describe("startGame", () => {
 	afterEach(() => {
@@ -156,7 +157,9 @@ describe("turnMade", () => {
 				currentPlayerIndex: 0,
 				advancePlayer: vi.fn(),
 				direction: 1,
-			};
+				pendingDrawCount: 0,
+				dealCardsToPlayer: vi.fn(),
+			} satisfies GameContext;
 
 			game.turnMade(currentPlayer, [{ name: "draw_card" }]);
 
