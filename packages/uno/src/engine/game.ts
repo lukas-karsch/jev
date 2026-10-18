@@ -152,6 +152,18 @@ class UnoGameImpl implements UnoGame {
 			}
 		}
 
+		if (currentTurn.cards.length === 1) {
+			const secondAction = actions[1];
+			if (!secondAction || secondAction.name !== "call_uno") {
+				console.error(
+					"Player did not call UNO, even though he only has one card left in his hand. Dealing two punishment cards",
+				);
+				for (let i = 0; i < 2; i++) {
+					currentTurn.cards.push(ctx.deck.pop()!); // TODO fix - re-shuffling may be necessary
+				}
+			}
+		}
+
 		ctx.advancePlayer();
 
 		const nextTurn = ctx.players[ctx.currentPlayerIndex]!;
