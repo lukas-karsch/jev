@@ -30,4 +30,53 @@ describe("RandomPlayer", () => {
 			],
 		]);
 	});
+
+	it("calls UNO after playing a regular card when one card remains", () => {
+		const ownCards: Card[] = [
+			{ type: "regular", color: "blue", value: 1 },
+			{ type: "regular", color: "red", value: 2 },
+		];
+		const actions: PlayerAction[][] = [];
+
+		new RandomPlayer().onTurn(
+			ownCards,
+			{ type: "regular", color: "blue", value: 9 },
+			(action) => actions.push(action),
+		);
+
+		expect(actions).toEqual([
+			[
+				{
+					card: { type: "regular", color: "blue", value: 1 },
+					name: "play_card",
+				},
+				{ name: "call_uno" },
+			],
+		]);
+	});
+
+	it("calls UNO after playing a wild card when one card remains", () => {
+		const ownCards: Card[] = [
+			{ type: "wild", color: "black", value: "wild" },
+			{ type: "regular", color: "red", value: 2 },
+		];
+		const actions: PlayerAction[][] = [];
+
+		new RandomPlayer().onTurn(
+			ownCards,
+			{ type: "regular", color: "blue", value: 9 },
+			(action) => actions.push(action),
+		);
+
+		expect(actions).toEqual([
+			[
+				{
+					card: { type: "wild", color: "black", value: "wild" },
+					name: "play_card",
+					chosenColor: "red",
+				},
+				{ name: "call_uno" },
+			],
+		]);
+	});
 });

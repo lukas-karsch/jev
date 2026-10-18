@@ -5,7 +5,12 @@ import {
 	RegularCard,
 	WildCard,
 } from "../engine/cards";
-import { drawCardAction, Player, PlayerAction } from "../engine/player";
+import {
+	callUnoAction,
+	drawCardAction,
+	Player,
+	PlayerAction,
+} from "../engine/player";
 
 /** Randomly plays a legal card when possible, and draws when none can be played. */
 export class RandomPlayer implements Player {
@@ -56,13 +61,17 @@ export class RandomPlayer implements Player {
 					}
 				}
 
-				onTurnCompleted([
+				const actions: PlayerAction[] = [
 					{
 						card: playableWildCards[0]!,
 						name: "play_card",
 						chosenColor,
 					},
-				]);
+				];
+				if (ownCards.length === 2) {
+					actions.push(callUnoAction());
+				}
+				onTurnCompleted(actions);
 				return;
 			}
 		}
@@ -72,11 +81,15 @@ export class RandomPlayer implements Player {
 				Math.floor(Math.random() * playableRegularCards.length)
 			]!;
 
-		onTurnCompleted([
+		const actions: PlayerAction[] = [
 			{
 				card: selectedRegularCard,
 				name: "play_card",
 			},
-		]);
+		];
+		if (ownCards.length === 2) {
+			actions.push(callUnoAction());
+		}
+		onTurnCompleted(actions);
 	}
 }
